@@ -23,15 +23,21 @@ class Thing:
         return False
 
     def smell_from_area(self, smell, x, y, width, height):
-        total = [[[0, 0, 0] for _ in range(self.width)] for _ in range(self.height)]
+        total = [[[0, 0, 0] for _ in range(self.height)] for _ in range(self.width)]
 
         for i in range(x, x + width):
             for j in range(y, y + height):
-                if not (self._x <= i <= self._x + self._width and self._y <= j <= self._y + self._height):
+                """if not (self._x <= i <= self._x + self._width and self._y <= j <= self._y + self._height):
                     for m in range(self._x, self._x + self._width):
                         for n in range(self._y, self._y + self._height):
                             rad = ((i - m)**2 + (j - n)**2)**0.5
-                            for k in range(len(total)):
+                            for k in range(3):
+                                total[m - self._x][n - self._y][k] += (smell[k] / rad**2)"""
+                for m in range(self._x, self._x + self._width):
+                    for n in range(self._y, self._y + self._height):
+                        rad = ((i - m)**2 + (j - n)**2)**0.5
+                        for k in range(3):
+                            if rad != 0:
                                 total[m - self._x][n - self._y][k] += (smell[k] / rad**2)
     
         return total
@@ -76,7 +82,17 @@ class Life(Thing):
     pass
 
 class Amoeba(Life):
-    pass
+    def smell_from_things(self, things):
+        amoeba_smell = [[[0, 0, 0] for _ in range(self.height)] for _ in range(self.width)]
+        for thing in things:
+            smell = self.smell_from_area(thing.smell, thing.x, thing.y, thing.width, thing.height)
+            for i in range(len(amoeba_smell)):
+                for j in range(len(amoeba_smell[0])):
+                    for k in range(len(amoeba_smell[0][0])):
+                        amoeba_smell[i][j][k] += smell[i][j][k]
+
+        return amoeba_smell
+
 
 class World():
     def __init__(self, width, height, amoeba, things):

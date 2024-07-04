@@ -5,7 +5,7 @@ import time
 import os
 import colorama
 from colorama import Fore, Back, Style
-
+"""
 class Thing:
     def __init__(self, x, y, width, height, smell):
         self._x = x
@@ -38,6 +38,7 @@ class Thing:
                         for n in range(self._y, self._y + self._height):
                             rad = ((i - m)**2 + (j - n)**2)**0.5
                             for k in range(len(total)):
+        total = [[[0, 0, 0] for _ in range(self.width)] for _ in range(self.height)]
                                 total[m - self._x][n _ self._y][k] += (smell[k] / rad**)
                                 #total[k] += (smell[k] / rad**2)
     
@@ -121,7 +122,7 @@ class World():
             self.amoeba.y = 0
         if self.amoeba.y > self.height:
             self.amoeba.y = self.height
-
+"""
 def generate_world(rows=8, cols=8):
     amoeba_width = 3
     amoeba_height = 3
