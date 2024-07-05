@@ -14,10 +14,10 @@ class Thing:
             print("intersect")
             return True
         """
-        if (self.x <= other.x <= self.x + self.width or self.x <= other.x + other.width <= self.x + self.width or \
-                other.x <= self.x <= other.x + other.width or other.x <= self.x + self.width <= other.x + other.width) and \
-                (self.y <= other.y <= self.y + self.height or self.y <= other.y + other.height <= self.y + self.height or \
-                other.y <= self.y <= other.y + other.height or other.y <= self.y + self.height <= other.y + other.height):
+        if (self.x <= other.x <= self.x + self.width - 1 or self.x <= other.x + other.width - 1 <= self.x + self.width - 1 or \
+                other.x <= self.x <= other.x + other.width - 1 or other.x <= self.x + self.width - 1 <= other.x + other.width - 1) and \
+                (self.y <= other.y <= self.y + self.height - 1 or self.y <= other.y + other.height - 1 <= self.y + self.height - 1 or \
+                other.y <= self.y <= other.y + other.height - 1 or other.y <= self.y + self.height - 1 <= other.y + other.height - 1):
                     return True
         
         return False
