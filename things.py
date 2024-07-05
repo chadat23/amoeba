@@ -93,7 +93,6 @@ class Amoeba(Life):
 
         return amoeba_smell
 
-
 class World():
     def __init__(self, width, height, amoeba, things):
         self.width = width
@@ -116,6 +115,68 @@ class World():
                         return True
 
         return False
+
+    def is_on_map(self, thing):
+        if thing.x < 0:
+            return False
+        if thing.y < 0:
+            return False
+        if self.width < thing.x + thing.width:
+            return False
+        if self.height < thing.y + thing.height:
+            return False
+
+        return True            
+
+    def move_thing_nonoverlaping_rand(self, distance=1):
+        i = random.randrange(0, len(self.things))
+        start_i = i
+
+        direction = random.randrange(0, 8)
+        start_direction = direction
+
+        while True:
+            thing = self.things[i]
+            old_position = (thing.x, thing.y)
+            while True:
+                if direction == 0:
+                    thing.x += distance
+                if direction == 1:
+                    thing.x += distance
+                    thing.y += distance
+                if direction == 2:
+                    thing.y += distance
+                if direction == 3:
+                    thing.x -= distance
+                    thing.y += distance
+                if direction == 4:
+                    thing.x -= distance
+                if direction == 5:
+                    thing.x -= distance
+                    thing.y -= distance
+                if direction == 6:
+                    thing.y -= distance
+                if direction == 7:
+                    thing.x += distance
+                    thing.y -= distance
+
+                if self.is_on_map(thing):
+                    if not self.has_intersections():
+                        return True
+                thing.x = old_position[0]
+                thing.y = old_position[1]
+
+                direction += 1
+                if direction > 7:
+                    direction = 0
+                if direction == start_direction:
+                    break
+
+            i += 1
+            if i == len(self.things):
+                i = 0
+            if i == start_i:
+                return False
 
     def move_rand_amoeba(self):
         self.amoeba.move_rand()
