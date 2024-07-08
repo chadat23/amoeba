@@ -45,18 +45,24 @@ if __name__ == "__main__":
     rows = 10
     amoeba_width = 3
     amoeba_height = 3
-    amoeba = Amoeba(4, 4, amoeba_width, amoeba_height, [0, 0, 0])
-    thing_width = 2
-    thing_height = 2
-    thing0 = Thing(1, 1, thing_width, thing_height, [255, 58, 90])
-    thing1 = Thing(6, 1, thing_width, thing_height, [12, 255, 90])
-    thing2 = Thing(4, 7, thing_width, thing_height, [12, 58, 255])
-    world = World(cols, rows, amoeba, [thing0, thing1, thing2])
+    amoeba = Amoeba(5, 5, amoeba_width, amoeba_height, [0, 0, 0])
+    thing_width = 1
+    thing_height = 1
+    #thing0 = Thing(1, 1, thing_width, thing_height, [255, 58, 90])
+    #thing1 = Thing(6, 1, thing_width, thing_height, [12, 255, 90])
+    #thing2 = Thing(4, 7, thing_width, thing_height, [12, 58, 255])
+    #world = World(cols, rows, amoeba, [thing0, thing1, thing2])
+    thing_count = 9
+    things = []
+    for _ in range(thing_count):
+        things.append(Thing(random.randrange(0, cols - thing_width), random.randrange(0, rows - thing_height), thing_width, thing_height, [random.randrange(0, 256), random.randrange(0, 256), random.randrange(0, 256)]))
+    world = World(cols, rows, amoeba, things)
+    max_move = 3
     while True:
         _clear_console()
         render_world(world)
-        time.sleep(1.0)
-        world.move_thing_nonoverlaping_rand()
+        time.sleep(0.1)
+        world.move_thing_nonoverlaping_rand(random.randrange(1, max_move + 1))
     """cols = 16
     rows = 16
     amoeba_width = 3

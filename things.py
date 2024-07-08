@@ -103,7 +103,6 @@ class World():
     def has_intersections(self):
         for thing in self.things:
             if self.amoeba.has_intersections(thing):
-                print("inter0")
                 return True
 
         things_count = len(self.things)
@@ -111,7 +110,6 @@ class World():
             for i in range(things_count):
                 for j in range(i + 1, things_count):
                     if self.things[i].has_intersections(self.things[j]):
-                        print(f"{i}, {j} inter0")
                         return True
 
         return False
