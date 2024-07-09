@@ -139,7 +139,6 @@ def do_it(rows_min=12, cols_min=12, rows_max=30, cols_max=30, runs=10, max_thing
             'x7,y7,r7,g7,b7\n' \
 
     text += world_to_string(worlds)
-    print(world_to_string(worlds))
 
     text = text[:-1]
 
@@ -150,5 +149,5 @@ def do_it(rows_min=12, cols_min=12, rows_max=30, cols_max=30, runs=10, max_thing
         print(text)
 
 if __name__ == "__main__":
-    do_it(runs=4, should_print=False)
+    do_it(runs=10000, should_print=False, filename='training_data.csv')
     
