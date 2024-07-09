@@ -49,10 +49,11 @@ def world_to_string(worlds):
         for world in world_set:
             text += ','.join([str(v) for v in flatten_3d(world.amoeba.smell_from_things(world.things))]) + ','
         world = world_set[0]
+        amoeba = world.amoeba
         text += f'{str(len(world.things))},'
         count = len(world.things)
         for t in world.things:
-            text += ','.join([str(v) for v in [t.x, t.y, t.smell[0], t.smell[1], t.smell[2]]]) + ','
+            text += ','.join([str(v) for v in [amoeba.x - t.x, amoeba.y - t.y, t.smell[0], t.smell[1], t.smell[2]]]) + ','
         text += ','.join(['0,0,0,0,0' for _ in range(8 - count)])
         text = text + '\n'
 
@@ -142,7 +143,7 @@ def do_it(rows_min=12, cols_min=12, rows_max=30, cols_max=30, runs=10, max_thing
 
     text = text[:-1]
 
-    with open("info.csv", 'w') as file:
+    with open(filename, 'w') as file:
         file.write(text)
 
     if should_print:
