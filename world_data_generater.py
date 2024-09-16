@@ -143,12 +143,12 @@ def do_it(rows_min=12, cols_min=12, rows_max=30, cols_max=30, runs=10, max_thing
 
     text = text[:-1]
 
-    with open("info.csv", 'w') as file:
+    with open(filename, 'w') as file:
         file.write(text)
 
     if should_print:
         print(text)
 
 if __name__ == "__main__":
-    do_it(runs=10000, should_print=False, filename="training_data.csv")
+    do_it(runs=10000, should_print=False, filename='training_data.csv')
     

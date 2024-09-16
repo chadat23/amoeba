@@ -1,66 +1,88 @@
-import csv
-import numpy as np
 import torch
-from torch.utils.data import Dataset, DataLoader
 import torch.nn as nn
-import torch.nn.functional as F
 import torch.optim as optim
+from torch.utils.data import DataLoader, TensorDataset
+import pandas as pd
+from sklearn.model_selection import train_test_split
 
-class CustomDataset(Dataset):
-    def __init__(self, csv_file):
-        self.data = []
-        with open(csv_file, newline='') as file:
-            reader = csv.reader(file)
-            for row in reader:
-                row = [int(item) for item in row]
-                features = row[:64]
-                labels = row[64:]
-                self.data.append((features, labels))
-                
-    def __len__(self):
-        return len(self.data)
-    
-    def __getitem__(self, idx):
-        features, labels = self.data[idx]
-        features = torch.tensor(features, dtype=torch.float32)
-        labels = torch.tensor(labels, dtype=torch.float32)
-        return features, labels
+# Load the provided training data
+file_path = 'info.csv'  # Ensure the file is in the same directory or provide the correct path
+data = pd.read_csv(file_path)
 
-dataset = CustomDataset('arrays_output.csv')
-dataloader = DataLoader(dataset, batch_size=32, shuffle=True)
+# Extract the relevant columns
+anchors = data.iloc[:, :27]
+positives = data.iloc[:, 27:54]
+negatives = data.iloc[:, 54:81]
 
-# Define neural network model
-class SimpleNet(nn.Module):
-    def __init__(self):
-        super(SimpleNet, self).__init__()
-        self.fc1 = nn.Linear(64, 128)
-        self.fc2 = nn.Linear(128, 64)
+# Normalize the data
+anchors = anchors / anchors.max()
+positives = positives / positives.max()
+negatives = negatives / negatives.max()
 
+# Convert to numpy arrays and then to PyTorch tensors
+anchors = torch.tensor(anchors.to_numpy(), dtype=torch.float32)
+positives = torch.tensor(positives.to_numpy(), dtype=torch.float32)
+negatives = torch.tensor(negatives.to_numpy(), dtype=torch.float32)
+
+# Define the model
+class EmbeddingNet(nn.Module):
+    def __init__(self, input_dim, embedding_dim):
+        super(EmbeddingNet, self).__init__()
+        self.model = nn.Sequential(
+            nn.Linear(input_dim, 64),
+            nn.ReLU(),
+            nn.Linear(64, embedding_dim)
+        )
+            
     def forward(self, x):
-        x = F.relu(self.fc1(x))
-        x = torch.sigmoid(self.fc2(x))
-        return x
+        return self.model(x)
 
-model = SimpleNet()
+input_dim = 27
+embedding_dim = 32
+model = EmbeddingNet(input_dim, embedding_dim)
 
-# Define loss function and optimizer
-criterion = nn.MSELoss()
-optimizer = optim.Adam(model.parameters(), lr=0.001)
+# Define the Triplet Loss
+class TripletLoss(nn.Module):
+    def __init__(self, margin=1.0):
+        super(TripletLoss, self).__init__()
+        self.margin = margin
+            
+    def forward(self, anchor, positive, negative):
+        positive_distance = torch.nn.functional.pairwise_distance(anchor, positive)
+        negative_distance = torch.nn.functional.pairwise_distance(anchor, negative)
+        loss = torch.mean(torch.relu(positive_distance - negative_distance + self.margin))
+        return loss
 
-# Train the model
-num_epochs = 20
+# Hyperparameters
+learning_rate = 0.001
+num_epochs = 50
+batch_size = 32
 
+# Initialize loss function and optimizer
+triplet_loss = TripletLoss(margin=1.0)
+optimizer = optim.Adam(model.parameters(), lr=learning_rate)
+
+# Create DataLoader
+train_dataset = TensorDataset(anchors, positives, negatives)
+train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
+
+# Training loop
 for epoch in range(num_epochs):
-    for features, labels in dataloader:
-        # Forward pass
-        outputs = model(features)
-        loss = criterion(outputs, labels)
-                
-        # Backward pass and optimization
+    model.train()
+    total_loss = 0
+    for anchor, positive, negative in train_loader:
         optimizer.zero_grad()
+        anchor_embedding = model(anchor)
+        positive_embedding = model(positive)
+        negative_embedding = model(negative)
+        loss = triplet_loss(anchor_embedding, positive_embedding, negative_embedding)
         loss.backward()
         optimizer.step()
+        total_loss += loss.item()
             
-    print(f'Epoch [{epoch+1}/{num_epochs}], Loss: {loss.item():.4f}')
+    total_loss /= len(train_loader)
+    print(f'Epoch {epoch+1}/{num_epochs}, Loss: {total_loss:.4f}')
 
-print("Training complete!")
+# Save the model
+torch.save(model.state_dict(), 'embedding_model.pth')
+print("Model saved to embedding_model.pth")
